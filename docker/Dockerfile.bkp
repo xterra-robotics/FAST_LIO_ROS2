@@ -1,0 +1,89 @@
+# Author: TaeYoung Kim
+# email: tyoung96@yonsei.ac.kr
+# FROM arm64v8/ros:humble
+# FROM osrf/ros:humble-desktop
+FROM dustynv/ros:humble-ros-base-l4t-r36.2.0
+# FROM osrf/ros:humble-desktop-full
+
+RUN apt-key adv --keyserver keyserver.ubuntu.com --recv-keys F42ED6FBAB17C654
+RUN curl -sSL https://raw.githubusercontent.com/ros/rosdistro/master/ros.key -o /usr/share/keyrings/ros-archive-keyring.gpg
+
+RUN echo "deb [arch=$(dpkg --print-architecture) signed-by=/usr/share/keyrings/ros-archive-keyring.gpg] \
+    http://packages.ros.org/ros2/ubuntu $(lsb_release -cs) main" \
+    > /etc/apt/sources.list.d/ros2.list
+
+# Set non-interactive installation
+ENV DEBIAN_FRONTEND=noninteractive
+
+# Update and install base utilities first
+RUN apt-get update && apt-get install -y --no-install-recommends \
+    wget \
+    curl \
+    gnupg2 \
+    lsb-release \
+    ca-certificates \
+    && rm -rf /var/lib/apt/lists/*
+
+# Install ROS packages in stages to avoid dpkg errors
+RUN apt-get update && apt-get install -y --no-install-recommends \
+    ros-humble-ros-base \
+    && rm -rf /var/lib/apt/lists/*
+
+RUN apt-get update && apt-get install -y --no-install-recommends \
+    ros-humble-image-transport \
+    ros-humble-image-transport-plugins \
+    ros-humble-compressed-image-transport \
+    ros-humble-cv-bridge \
+    && rm -rf /var/lib/apt/lists/*
+
+# Install build tools and dependencies
+RUN apt-get update && apt-get install -y --no-install-recommends \
+    cmake \
+    build-essential \
+    git \
+    python3-pip \
+    python3-colcon-common-extensions \
+    && rm -rf /var/lib/apt/lists/*
+
+# Install PCL, Eigen and other libraries separately
+RUN apt-get update && apt-get install -y --no-install-recommends \
+    libatlas-base-dev \
+    libeigen3-dev \
+    libpcl-dev \
+    libgoogle-glog-dev \
+    libsuitesparse-dev \
+    libglew-dev \
+    && rm -rf /var/lib/apt/lists/*
+
+# Install OpenCV separately if needed (or use ROS's cv-bridge)
+RUN apt-get update && apt-get install -y --no-install-recommends \
+    libopencv-dev \
+    python3-opencv \
+    && rm -rf /var/lib/apt/lists/*
+
+# Install PCL & Eigen & essential libraries
+# RUN apt-get update && apt-get install -y ros-humble-desktop
+# RUN apt-get update && apt-get install -y cmake libatlas-base-dev libeigen3-dev libpcl-dev libgoogle-glog-dev libsuitesparse-dev libglew-dev wget unzip git python3-pip
+# RUN dpkg --configure -a
+# RUN apt-get update && apt-get install -y ros-humble-tf2 ros-humble-cv-bridge ros-humble-pcl-conversions ros-humble-xacro ros-humble-robot-state-publisher \
+#    ros-humble-rviz2 ros-humble-image-transport ros-humble-image-transport-plugins ros-humble-pcl-ros
+
+# Install livox SDK
+WORKDIR /root/
+RUN git clone https://github.com/Livox-SDK/Livox-SDK2.git
+WORKDIR /root/Livox-SDK2
+RUN mkdir build
+WORKDIR /root/Livox-SDK2/build
+RUN cmake .. && make -j2 && make install
+
+
+RUN /bin/bash -c '. /opt/ros/humble/setup.bash;'
+
+WORKDIR /root/ros2_ws
+
+# Load ROS environment at each run
+COPY ./ros_entrypoint.sh /
+RUN chmod 755 /ros_entrypoint.sh
+ENTRYPOINT ["/ros_entrypoint.sh"]
+
+CMD ["bash"]
