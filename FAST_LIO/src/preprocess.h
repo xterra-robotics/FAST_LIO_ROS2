@@ -131,6 +131,25 @@ POINT_CLOUD_REGISTER_POINT_STRUCT(livox_ros::LivoxPointXyzrtl,
     (uint8_t, tag, tag)
     (uint8_t, line, line)
 )
+// namespace livox_ros
+// {
+// typedef struct {
+//   float x;
+//   float y;
+//   float z;
+//   float intensity;     // Changed from reflectivity
+//   uint8_t tag;
+//   uint8_t line;
+// } LivoxPointXyzrtl;
+// }
+// POINT_CLOUD_REGISTER_POINT_STRUCT(livox_ros::LivoxPointXyzrtl,
+//     (float, x, x)
+//     (float, y, y)
+//     (float, z, z)
+//     (float, intensity, intensity)        // Changed from reflectivity
+//     (uint8_t, tag, tag)
+//     (uint8_t, line, line)
+// )
 
 class Preprocess
 {

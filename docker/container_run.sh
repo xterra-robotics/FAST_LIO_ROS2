@@ -20,13 +20,17 @@ fi
 CONTAINER_NAME="$1"
 IMAGE_NAME="$2"
 
-# Launch the nvidia-docker container with the provided image name and tag
+# Launch the docker container with the provided image name and tag
+# GPU flags are optional - only add if nvidia-container-toolkit is available
+GPU_FLAGS=""
+if command -v nvidia-smi &> /dev/null && docker info 2>/dev/null | grep -q "Runtimes.*nvidia"; then
+    GPU_FLAGS="--gpus all -e NVIDIA_DRIVER_CAPABILITIES=all -e NVIDIA_VISIBLE_DEVICES=all"
+fi
+
 docker run --privileged -it \
-            --gpus all \
-           -e NVIDIA_DRIVER_CAPABILITIES=all \
-           -e NVIDIA_VISIBLE_DEVICES=all \
+           $GPU_FLAGS \
            --volume="$PROJECT_DIR:/root/ros2_ws/src" \
-           --volume=/data/LIDAR_dataset:/root/data \
+           --volume="$PROJECT_DIR/../tata_bags:/root/tata_bags" \
            --volume=/tmp/.X11-unix:/tmp/.X11-unix:rw \
            --net=host \
            --ipc=host \
