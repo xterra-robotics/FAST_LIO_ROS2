@@ -27,6 +27,7 @@ docker run --privileged -it \
            -e NVIDIA_VISIBLE_DEVICES=all \
            --volume="$PROJECT_DIR:/root/ros2_ws/src" \
            --volume=/data/LIDAR_dataset:/root/data \
+	   --volume=/home/xterra/orion_nav/orion_nav/cyclonedds:/root/cyclonedds \
            --volume=/tmp/.X11-unix:/tmp/.X11-unix:rw \
            --net=host \
            --ipc=host \

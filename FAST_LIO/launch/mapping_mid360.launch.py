@@ -63,12 +63,12 @@ def generate_launch_description():
                     'runtime_pos_log_enable': runtime_pos_log_enable_param}],
         output='screen'
     )
-    rviz_node = Node(
-        package='rviz2',
-        executable='rviz2',
-        arguments=['-d', rviz_cfg],
-        condition=IfCondition(rviz_use)
-    )
+    #rviz_node = Node(
+     #   package='rviz2',
+      #  executable='rviz2',
+       # arguments=['-d', rviz_cfg],
+        #condition=IfCondition(rviz_use)
+    #)
 
     ld = LaunchDescription()
     ld.add_action(declare_use_sim_time_cmd)
@@ -77,6 +77,6 @@ def generate_launch_description():
     ld.add_action(declare_rviz_config_path_cmd)
 
     ld.add_action(fast_lio_node)
-    ld.add_action(rviz_node)
+    #ld.add_action(rviz_node)
 
     return ld
